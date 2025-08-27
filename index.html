@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Memory Card Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f0f0f0;
+      margin: 0;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 32px;
+      color: #333;
+    }
+
+    .game {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      grid-gap: 10px;
+    }
+
+    .card {
+      width: 100px;
+      height: 100px;
+      background: gray;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
+      cursor: pointer;
+      border-radius: 10px;
+      user-select: none;
+      transition: background 0.3s;
+    }
+
+    .card.open, .card.matched {
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Card</h1>
+  <div class="game"></div>
+
+  <script>
+    const animals = ["🐶","🐱","🦁","🐼","🐸","🐵","🐰","🐧"];
+    let cards = [...animals, ...animals]; 
+    cards.sort(() => 0.5 - Math.random()); 
+
+    const game = document.querySelector(".game");
+    let firstCard = null;
+    let lock = false;
+    let matchedCount = 0;
+
+    cards.forEach(animal => {
+      const card = document.createElement("div");
+      card.classList.add("card");
+      card.dataset.animal = animal;
+      card.innerText = "❓"; // изначально вопрос
+      game.appendChild(card);
+
+      card.addEventListener("click", () => {
+        if (lock || card.classList.contains("open") || card.classList.contains("matched")) return;
+        
+        card.classList.add("open");
+        card.innerText = card.dataset.animal;
+
+        if (!firstCard) {
+          firstCard = card;
+        } else {
+          if (firstCard.dataset.animal === card.dataset.animal) {
+            firstCard.classList.add("matched");
+            card.classList.add("matched");
+            matchedCount += 2;
+            firstCard = null;
+
+            // проверка победы
+            if (matchedCount === cards.length) {
+              setTimeout(() => {
+                alert("Ты победил!");
+              }, 300);
+            }
+
+          } else {
+            lock = true;
+            setTimeout(() => {
+              firstCard.classList.remove("open");
+              card.classList.remove("open");
+              firstCard.innerText = "❓";
+              card.innerText = "❓";
+              firstCard = null;
+              lock = false;
+            }, 1000);
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
